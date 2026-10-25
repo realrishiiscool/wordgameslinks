@@ -71,17 +71,26 @@
       color: #17210b;
     }
 
+    .secondary, .link {
+      border: 1px solid var(--line);
+      background: #111a2c;
+      color: var(--text);
+    }
+
     .link {
       display: inline-flex;
       align-items: center;
-      border: 1px solid var(--line);
-      color: var(--text);
-      background: #111a2c;
     }
 
     button:hover, .link:hover {
       filter: brightness(1.1);
       transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: .7;
+      transform: none;
     }
 
     .grid {
@@ -137,7 +146,8 @@
     </header>
 
     <div class="actions">
-      <button id="open-all" type="button">Open all 7 games ↗</button>
+      <button id="open-next" type="button">Open next game ↗</button>
+      <button id="reset" class="secondary" type="button">Start over</button>
       <a class="link" href="#games">Choose a game</a>
     </div>
 
@@ -166,8 +176,8 @@
     </section>
 
     <p class="note">
-      “Open all” opens each game in a new tab. If your browser blocks pop-ups,
-      allow them for this page or open games one at a time.
+      Click “Open next game” once for each game. Opening one tab per click helps
+      avoid browser pop-up blocking. The game cards also open each game directly.
     </p>
   </main>
 
@@ -182,9 +192,46 @@
       "https://www.symble.app/"
     ];
 
-    document.getElementById("open-all").addEventListener("click", () => {
-      games.forEach(url => window.open(url, "_blank", "noopener,noreferrer"));
+    const names = [
+      "Word500", "Contexto", "Betweenle", "Fibble",
+      "Wordle Game", "Minute Cryptic", "Symble"
+    ];
+
+    let nextGame = 0;
+    const openButton = document.getElementById("open-next");
+    const resetButton = document.getElementById("reset");
+
+    function updateButton() {
+      if (nextGame >= games.length) {
+        openButton.textContent = "All games opened ✓";
+        openButton.disabled = true;
+      } else {
+        openButton.textContent =
+          `Open ${names[nextGame]} (${nextGame + 1} of ${games.length}) ↗`;
+        openButton.disabled = false;
+      }
+    }
+
+    openButton.addEventListener("click", () => {
+      if (nextGame >= games.length) return;
+
+      const tab = window.open(games[nextGame], "_blank");
+      if (tab) {
+        tab.opener = null;
+        nextGame++;
+        updateButton();
+      } else {
+        openButton.textContent =
+          `Popup blocked — click the ${names[nextGame]} card below`;
+      }
     });
+
+    resetButton.addEventListener("click", () => {
+      nextGame = 0;
+      updateButton();
+    });
+
+    updateButton();
   </script>
 </body>
 </html>

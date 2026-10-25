@@ -168,23 +168,35 @@
     <p class="note">Click “Open all 7 games” once to open every game in a new tab.</p>
   </main>
 
-  <script>
-    const games = [
-      "https://word500.com/game?mode=archive&date=2022-01-01",
-      "https://contexto.me/en/daily",
-      "https://betweenle.org/",
-      "https://fibble.xyz/",
-      "https://wordlegame.org/",
-      "https://www.minutecryptic.com/",
-      "https://www.symble.app/"
-    ];
+ <script>
+  const games = [
+    "https://word500.com/game?mode=archive&date=2022-01-01",
+    "https://contexto.me/en/daily",
+    "https://betweenle.org/",
+    "https://fibble.xyz/",
+    "https://wordlegame.org/",
+    "https://www.minutecryptic.com/",
+    "https://www.symble.app/"
+  ];
 
-    document.getElementById("open-all").addEventListener("click", () => {
-      for (const url of games) {
-        const tab = window.open(url, "_blank");
-        if (tab) tab.opener = null;
-      }
+  document.getElementById("open-all").addEventListener("click", () => {
+    // Open each tab during the click, then load the games with a short delay.
+    const tabs = games.map(() => window.open("about:blank", "_blank"));
+    const opened = tabs.filter(Boolean).length;
+
+    tabs.forEach((tab, index) => {
+      if (!tab) return;
+
+      tab.opener = null;
+      setTimeout(() => {
+        if (!tab.closed) tab.location.href = games[index];
+      }, index * 500);
     });
-  </script>
+
+    if (opened < games.length) {
+      alert(`Your browser allowed ${opened} of ${games.length} tabs. Allow pop-ups for this site, then click again.`);
+    }
+  });
+</script>
 </body>
 </html>
